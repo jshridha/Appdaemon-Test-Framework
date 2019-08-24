@@ -7,7 +7,7 @@ class StateNotSetError(AppdaemonTestFrameworkError):
     def __init__(self, entity_id):
         super().__init__(f"""
         State for entity: '{entity_id}' was never set!
-        Please make sure to set the state with `given_that.state_of({entity_id}).is_set_to(STATE)` 
+        Please make sure to set the state with `given_that.state_of({entity_id}).is_set_to(STATE)`
         before trying to access the mocked state
         """)
 
@@ -34,7 +34,13 @@ class GivenThatWrapper:
             if attribute is None:
                 return state['main']
             elif attribute == 'all':
-                return state['attributes']
+                last_updated = state["attributes"].pop("last_updated", None)
+                last_changed = state["attributes"].pop("last_changed", None)
+                return {
+                    "last_updated": last_updated, "last_changed": last_changed,
+                    "state": state["main"], "attributes": state['attributes'],
+                    "entity_id": entity_id,
+                }
             else:
                 return state['attributes'].get(attribute)
 
